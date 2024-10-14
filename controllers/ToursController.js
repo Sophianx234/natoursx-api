@@ -1,21 +1,27 @@
-const fs = require('fs');
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`,(err)=>{
-    console.log('could not read file')
-}))
-exports.getAllTours = async(req,res)=>{
-    try{
-        res.status(200).json({
-            status: 'success',
-            result: tours.length,
-            data:{
-                tours
+const Tour = require("../models/ToursModel");
 
-            }
-        })
-    }catch(err){
-        res.json({
-            status: 'fail',
-            message: err.message
-        })
-    }
-}
+exports.getAllTours = async (req, res) => {
+  const queryObj = { ...req.query };
+  const excludedFields = ["page", "sort", "limit", "field"];
+  excludedFields.forEach((field) => delete queryObj[field]);
+  let query = Tour.find();
+  
+  if (req.query.sort) query = query.sort(req.query.sort);
+    const tours = await query
+  res.status(200).json({
+    status: "success",
+    result: tours.length,
+    data: {
+      tours,
+    },
+  });
+};
+
+exports.getTour = async (req, res) => {
+  const id = req.params.id;
+  const tour = await Tour.findById(id);
+  res.status(200).json({
+    status: "success",
+    tour,
+  });
+};
