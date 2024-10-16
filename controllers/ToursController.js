@@ -1,18 +1,20 @@
 const Tour = require("../models/ToursModel");
 const APIFeatures = require("../utils/APIFeatures");
 const AppError = require("../utils/AppError");
-const catchAsync = require("./catchAsync");
+const catchAsync = require("./CatchAsync");
+
 exports.aliasTopTours = (req,res,next)=>{
   req.query.limit= '5';
   req.query.sort = 'price,ratingsAverage'
   req.query.field = 'name,price,duration'
+  next()
 }
 
 exports.getAllTours = catchAsync( async (req, res,next) => {
 
-   const features = new APIFeatures(Tour.find(),req.query).filter().sort().limit().field().paginate()
+   const features = new APIFeatures(Tour.find(),req.query).filter().sort().field().limit().paginate()
   const tours = await features.query;
-  
+  if(!tours) return next(new AppError('Tours do not exist',404))
   res.status(200).json({
     status: "success",
     result: tours.length,
@@ -24,14 +26,15 @@ exports.getAllTours = catchAsync( async (req, res,next) => {
 
 exports.getTour = catchAsync( async (req, res,next) => {
   const id = req.params.id;
-  const tour = await Tour.findById(id);
+  const features = new APIFeatures(Tour.findById(id),req.query).field()
+  const tour = await features.query;
   if(!tour) return next(new AppError(`No tour found with that ID`,404))
   res.status(200).json({
     status: "success",
     tour,
   });
 });
-exports.updateTour = catchAsync( async(req,res,next)=>{
+exports.updateTour = async(req,res)=>{
   
 
     const id = req.params.id
@@ -46,7 +49,7 @@ exports.updateTour = catchAsync( async(req,res,next)=>{
       }
     })
   
-})
+}
 
 exports.deleteTour = catchAsync( async(req,res,next)=>{
   const {id} = req.params
