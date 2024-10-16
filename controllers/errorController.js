@@ -1,4 +1,3 @@
-const { stack } = require("../app");
 const AppError = require("../utils/AppError");
 
 const sendErrorProd = (err, res) => {
@@ -12,7 +11,7 @@ const sendErrorProd = (err, res) => {
   }
 };
 const sendErrorDev = (err, res) => {
-  res.status(err.statusCode).json({
+  res.status(err.statusCode||500).json({
     status: err.status,
     error: err,
     message: err.message,
