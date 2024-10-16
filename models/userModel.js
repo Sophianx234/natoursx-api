@@ -9,7 +9,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: [true, 'email must be unique']
     },
-    role: ['admin','guest','client'],
+    role:{
+        type: String,
+        enum: ['admin','guest','client'],
+        default: 'client'
+
+    } ,
     active: {
         type: Boolean
     },
