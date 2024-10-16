@@ -15,10 +15,9 @@ exports.getAllUsers = catchAsync(async(req,res,next)=>{
 })
 
 exports.updateUser = catchAsync(async(req,res,next)=>{
-    const {name,email,password} = req.body
-    const {id} = req.params
-    const features = new APIFeatures(User.findByIdAndUpdate(id,{name,password,email},{new:true}),req.query)
-    const user = await features.query;
+    const {name,email,password,passwordConfirm} = req.body
+    const id = req.params.id
+    const user = await User.findByIdAndUpdate(id,{name,password,email,passwordConfirm},{new:true})
     res.status(200).json({
         status: 'success',
         data: {
@@ -35,5 +34,25 @@ exports.getUser = catchAsync(async(req,res,next)=>{
         data: {
             user
         }
+    })
+})
+
+exports.signup = catchAsync(async(req,res,next)=>{
+    const {name,email,password,passwordConfirm} = req.body
+    const user = await User.create({name,password,passwordConfirm,email})
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user
+        }
+    })
+
+})
+
+exports.deleteUser = catchAsync(async(req,res,next)=>{
+     await User.findByIdAndDelete(req.params.id)
+    res.status(501).json({
+        status: 'success',
+        data: null
     })
 })
