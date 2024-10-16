@@ -42,6 +42,14 @@ userSchema.pre('save',async function(next){
     this.passwordConfirm = undefined
     next()
 })
+userSchema.methods.correctPassword = async function(candPass,userPass){
+    try{
+
+        return await bcrypt.compare(candPass,userPass)
+    }catch(err){
+        console.log(err)
+    }
+}
 
 const User = mongoose.model('User',userSchema)
 
