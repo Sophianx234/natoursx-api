@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const {promisify} = require('util')
 
 
 const User = require("../models/userModel");
@@ -7,8 +8,8 @@ const catchAsync = require("./catchAsync");
 const AppError = require("../utils/AppError");
 
 
-exports.signToken = (id)=>{
-    return jwt.sign({id},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN})
+const signToken = (user)=>{
+    return jwt.sign({id: user._id},process.env.JWT_SECRET,{expiresIn: process.env.JWT_EXPIRES_IN})
 }
 exports.getAllUsers = catchAsync(async(req,res,next)=>{
     const features = new APIFeatures(User.find(),req.query).sort().field().limit().paginate()
@@ -51,7 +52,7 @@ exports.getUser = catchAsync(async(req,res,next)=>{
 exports.signup = catchAsync(async(req,res,next)=>{
     const {name,email,password,passwordConfirm} = req.body
     const newUser = await User.create({name,password,passwordConfirm,email})
-    const token = this.signToken(newUser.__id)
+    const token = signToken(newUser)
     res.status(200).json({
         status: 'success',
         token,
@@ -76,8 +77,7 @@ exports.login = catchAsync(async(req,res,next)=>{
     if(!email || !password) return next(new AppError('invalid email or password'))
     const user = await User.findOne({email}).select('+password')
     if(!user || !(await user.correctPassword(password,user.password))) return next(new AppError('incorrect email or password'))
-    const token = this.signToken(user.__id)
-console.log(token)
+    const token = signToken(user)
     res.status(200).json({
         status: 'success',
         token
@@ -85,4 +85,30 @@ console.log(token)
         
     
 
+})
+
+exports.protect = catchAsync(async(req,res,next)=>{
+    let token;
+    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer') ){
+        token = req.headers.authorization.split(' ')[1].trim()
+
+    }
+    if(!token)return next(new AppError('You are not logged in! please login to access route:D',401))
+        const decoded = await jwt
+    .verify(token,process.env.JWT_SECRET)
+console.log('token',decoded)
+console.log('token',process.env.JWT_SECRET)
+
+
+    const currentUser = await User.findById(decoded
+    )
+    if(!currentUser){
+        return next(new AppError('The user belonging to this token no longer exist',401))
+    }
+    if(currentUser.changedPasswordAfter(decoded.iat)){
+        return next(new AppError('User recently changed password please login again',401))
+
+    }
+    req.user = currentUser
+    next()
 })
