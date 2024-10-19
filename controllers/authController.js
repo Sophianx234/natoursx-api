@@ -50,8 +50,8 @@ exports.getUser = catchAsync(async(req,res,next)=>{
 })
 
 exports.signup = catchAsync(async(req,res,next)=>{
-    const {name,email,password,passwordConfirm} = req.body
-    const newUser = await User.create({name,password,passwordConfirm,email})
+    const {name,email,password,passwordConfirm,role} = req.body
+    const newUser = await User.create({name,password,passwordConfirm,email,role})
     const token = signToken(newUser)
     
     res.status(200).json({
@@ -112,3 +112,14 @@ exports.protect = catchAsync(async(req,res,next)=>{
     next()
 })
 
+exports.restrictTo
+= (...roles)=>{
+    return (req,res,next)=>{
+
+        console.log(roles)
+        if(!roles.includes(req.user.role)){
+            return next(new AppError('You do not have permission to perform this function',403))
+        }
+     next()   
+    }
+}
