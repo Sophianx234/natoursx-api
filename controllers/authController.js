@@ -201,3 +201,22 @@ exports.resetPassword = catchAsync(async(req,res,next)=>{
 
 
 })
+
+exports.updateUser = catchAsync(async(req,res,next)=>{
+    const user = await User.findById(req.user.id).select('+password')
+    const {password,passwordCurrent,passwordConfirm} = req.body
+    if(!user || !(await user.correctPassword(passwordCurrent, user.password))){
+        return next(new AppError('Invalid username or password',404))
+    }
+    user.password = password 
+    user.passwordConfirm = passwordConfirm
+    await user.save()
+    const token = signToken(user)
+    res.status(200).json({
+        status: 'success',
+        token
+    })
+
+    
+    
+})
