@@ -2,8 +2,8 @@ const express = require('express');
 const userController = require('../controllers/authController');
 const router = express.Router()
 const { getAllUsers,updateUser,getUser,login,signup,deleteUser,protect,forgotPassword,resetPassword } = userController
-router.route('/forgotPassword').post(forgotPassword)
-router.route('/resetPassword/:token').patch(resetPassword)
+router.post('/forgotPassword',forgotPassword)
+router.patch('/resetPassword/:token',resetPassword)
 router.post('/signup',signup)
 router.post('/login',login)
 router.route('/').get(getAllUsers)

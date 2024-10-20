@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const { reset } = require("nodemon");
 const crypto = require("crypto");
 const userSchema = new mongoose.Schema({
   name: {
@@ -70,7 +69,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-  this.passwordResetToken = Date.now() +10 * 60 * 1000;
+  this.passwordResetExpires = Date.now() +10 * 60 * 1000;
   return resetToken;
 };
 
