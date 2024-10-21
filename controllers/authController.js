@@ -13,6 +13,23 @@ const signToken = (user) => {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
+const createSendToken = (user,statusCode,res)=>{
+  const token = signToken(user);
+  const cookieOptions = {
+    expires: new Date(Date.now()+ process.env.JWT_COOKIE_EXPIRES_IN*24*60*60*1000),
+    httpOnly: true
+  }
+  if(process.env.NODE_ENV === 'production') cookieOptions.secure = true
+  res.cookie('jwt',token,cookieOptions)
+  user.password = undefined
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
+  });
+}
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(User.find(), req.query)
     .sort()
@@ -68,16 +85,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     email,
     role,
   });
-  const token = signToken(newUser);
-  req.user = newUser
-  console.log(req.user)
-  res.status(200).json({
-    status: "success",
-    token,
-    data: {
-      newUser,
-    },
-  });
+  createSendToken(newUser,200,res)
 });
 
 exports.deleteUser = catchAsync(async (req, res, next) => {
@@ -96,11 +104,7 @@ exports.login = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email }).select("+password");
   if (!user || !(await user.correctPassword(password, user.password)))
     return next(new AppError("incorrect email or password"));
-  const token = signToken(user);
-  res.status(200).json({
-    status: "success",
-    token,
-  });
+ createSendToken(user,200,res)
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -194,11 +198,7 @@ exports.resetPassword = catchAsync(async(req,res,next)=>{
     user.passwordResetToken = undefined
     user.passwordResetExpires = undefined
     await user.save()
-    const token = signToken(user)
-    res.status(200).json({
-        status: 'success',
-        token
-    })
+    createSendToken(user,200,res)
 
 
 })
