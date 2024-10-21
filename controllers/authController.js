@@ -69,7 +69,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     role,
   });
   const token = signToken(newUser);
-
+  req.user = newUser
+  console.log(req.user)
   res.status(200).json({
     status: "success",
     token,
@@ -202,10 +203,11 @@ exports.resetPassword = catchAsync(async(req,res,next)=>{
 
 })
 
-exports.updateUser = catchAsync(async(req,res,next)=>{
+exports.updateUserPassword = catchAsync(async(req,res,next)=>{
     const user = await User.findById(req.user.id).select('+password')
+    console.log('req.user', req.user)
     const {password,passwordCurrent,passwordConfirm} = req.body
-    if(!user || !(await user.correctPassword(passwordCurrent, user.password))){
+    if(!(await user.correctPassword(passwordCurrent, user.password))){
         return next(new AppError('Invalid username or password',404))
     }
     user.password = password 
