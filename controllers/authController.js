@@ -222,3 +222,16 @@ exports.updateUserPassword = catchAsync(async(req,res,next)=>{
     
     
 })
+
+exports.deleteMe = catchAsync(async(req,res,next)=>{
+  if(!req.user.id){
+    return next(new AppError('You do not have permission to perform this action! Please login'))
+  }
+  
+  await User.findByIdAndUpdate(req.user.id,{active:false})
+  res.status(204).json({
+    status: 'success',
+    data: null
+  })
+  
+  })
