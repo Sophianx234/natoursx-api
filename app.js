@@ -16,7 +16,7 @@ const limit  = rateLimit({
 app.use(helmet())
 app.use('/api',limit)
 app.use(morgan("dev"));
-app.use(express.json());
+app.use(express.json({limit: '10kb'}));
 
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
