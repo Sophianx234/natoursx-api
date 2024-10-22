@@ -5,7 +5,6 @@ const User = require("../models/userModel");
 const APIFeatures = require("../utils/APIFeatures");
 const catchAsync = require("./catchAsync");
 const AppError = require("../utils/AppError");
-const { reset } = require("nodemon");
 const sendEmail = require("../utils/email");
 
 const signToken = (user) => {

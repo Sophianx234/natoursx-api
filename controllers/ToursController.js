@@ -61,3 +61,12 @@ exports.deleteTour = catchAsync( async(req,res,next)=>{
     data: null
   })
 })
+
+exports.createTour = catchAsync(async(req,res,next)=>{
+  const tour = await Tour.create(req.body)
+  if(!tour) return next(new AppError('could not create Tour',404))
+    res.status(200).json({
+  status: 'success',
+  tour
+})
+})
