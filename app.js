@@ -8,6 +8,7 @@ const hpp = require("hpp");
 const errorController = require("./controllers/errorController");
 const tourRouter = require("./routes/ToursRoute");
 const userRouter = require("./routes/userRoute");
+const reviewRouter = require("./routes/reviewRoute");
 const AppError = require("./utils/AppError");
 const rateLimit = require("express-rate-limit");
 
@@ -37,6 +38,7 @@ app.use(express.json({ limit: "10kb" }));
 
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/reviews", reviewRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
