@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const User = require('./userModel');
-const { promises } = require('nodemailer/lib/xoauth2');
 
 const tourSchema = new mongoose.Schema({
     name:{
@@ -70,6 +69,11 @@ const tourSchema = new mongoose.Schema({
         ref: 'User'
     }]
 
+})
+
+tourSchema.pre(/^find/, function(next){
+    this.populate({path: 'guides', select: '-__v -passwordChangedAt'})
+    next()
 })
 
 /* tourSchema.pre('save', async function(next){
