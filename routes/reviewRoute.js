@@ -1,11 +1,10 @@
 const express = require("express");
 const reviewController = require("../controllers/reviewController");
 const authController = require("../controllers/authController");
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
 const { getAllReviews, getReview,createReview} = reviewController;
 const { protect } = authController;
 
-router.route("/").get(protect, getAllReviews).post(createReview);
-router.route("/:id").get( getReview);
+router.route("/").get(getAllReviews).post(protect, createReview);
 module.exports = router;

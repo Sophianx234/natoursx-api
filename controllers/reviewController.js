@@ -4,7 +4,9 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("./catchAsync");
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
-  const Feature = new APIFeatures(Review.find(), req.query)
+  let filter
+  if(req.params.tourId) filter = {tour: req.params.tourId}
+  const Feature = new APIFeatures(Review.find(filter), req.query)
     .sort()
     .filter()
     .limit()
@@ -36,6 +38,8 @@ exports.getReview = catchAsync(async (req, res, next) => {
 exports.createReview = catchAsync(async(req,res,next)=>{
   if(!req.body.user) req.body.user = req.user.id
   if(!req.body.tour) req.body.tour = req.params.tourId
+  console.log('user: ',req.user)
+  console.log('user', req.params.tourId)
   const newReview = await Review.create(req.body)
 
   res.status(200).json({
