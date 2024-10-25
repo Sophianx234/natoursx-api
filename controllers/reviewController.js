@@ -52,3 +52,5 @@ exports.createReview = catchAsync(async(req,res,next)=>{
 })
 
 exports.deleteReview = factory.deleteOne(Review)
+
+exports.updateReview = factory.updateOne(Review)
